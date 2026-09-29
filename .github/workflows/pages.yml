@@ -28,8 +28,16 @@ jobs:
 
           css = Path("site/public/site.css")
           css_text = css.read_text(encoding="utf-8").replace("--cream:#f6f4ee", "--cream:#fff")
-          css_text += "\nhtml,body,header,nav,main,section,footer,.top,.nav,.hero,.footer,.card{background:#fff!important;background-image:none!important;color:#153d52!important}.links,.lang,.brand small,.hero p,.footer p,.copy,.muted{color:#334b56!important}.lang,.btn.secondary{border-color:#153d52!important}.copy{border-color:#e3e6e3!important}"
+          css_text += "\nhtml,body,header,nav,main,section,footer,.top,.nav,.hero,.footer,.card{background:#fff!important;background-image:none!important;color:#153d52!important}.links,.lang,.brand small,.hero p,.footer p,.copy,.muted{color:#334b56!important}.lang,.btn.secondary{border-color:#153d52!important}.copy{border-color:#e3e6e3!important}.site-address{font:11px Arial,sans-serif;color:var(--gold);margin-top:14px;direction:ltr}.site-address a{text-decoration:underline;text-underline-offset:3px}"
           css.write_text(css_text, encoding="utf-8")
+
+          site_js = Path("site/public/site.js")
+          js = site_js.read_text(encoding="utf-8")
+          needle = '<div class="copy" data-ar="الموقع تعريفي فقط، ولا يشكل مشورة مالية أو عرضًا للاستثمار." data-en="For information only; not financial advice or an offer to invest."></div>'
+          website = '<div class="site-address"><a href="https://am07-financial.github.io/automatic-system/" data-ar="الموقع الرسمي: am07-financial.github.io/automatic-system" data-en="Website: am07-financial.github.io/automatic-system">Website: am07-financial.github.io/automatic-system</a></div>'
+          if 'class="site-address"' not in js:
+              js = js.replace(needle, website + needle)
+          site_js.write_text(js, encoding="utf-8")
 
           contact = Path("site/public/contact.html")
           html = contact.read_text(encoding="utf-8")
