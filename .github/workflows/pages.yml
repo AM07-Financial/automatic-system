@@ -20,56 +20,41 @@ jobs:
       - uses: actions/checkout@v4
       - name: Extract website package
         run: python3 -c "import zipfile; zipfile.ZipFile('am-company-free-static.zip').extractall('site')"
-      - name: Apply requested page updates
+      - name: Apply site branding
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-          css = Path("site/public/site.css")
-          css_text = css.read_text(encoding="utf-8").replace("--cream:#f6f4ee", "--cream:#fff")
-          css_text = css_text.replace("--navy:#081e2c", "--navy:#1746a2").replace("--blue:#153d52", "--blue:#4169e1").replace("--gold:#d7b56d", "--gold:#c9a227")
-          css_text += "\nhtml,body,header,nav,main,section,footer,.top,.nav,.hero,.footer,.card{background:#fff!important;background-image:none!important;color:var(--navy)!important}.links,.lang,.brand small,.hero p,.footer p,.copy{color:var(--navy)!important}.lang,.btn.secondary{border-color:var(--blue)!important}.copy{border-color:#e3e6e3!important}.site-address{font:11px Arial,sans-serif;color:var(--gold);margin-top:14px;direction:ltr}.site-address a{text-decoration:underline;text-underline-offset:3px}.hero h1,.title,.card h2,.card h3,.brand strong{color:var(--navy)!important}.eyebrow,.site-address,.links a[aria-current=page]{color:var(--gold)!important}.btn{background:var(--gold)!important;color:var(--navy)!important}.card{border-color:#e6d9b5!important}.experience-band{background:#fbf8ed;border-block:1px solid #e8ddbe;padding:17px 0}.experience-band p{margin:0;border-right:4px solid var(--gold);padding:4px 14px;color:var(--navy);font-weight:600}"
-          css.write_text(css_text, encoding="utf-8")
-          site_js = Path("site/public/site.js")
-          js = site_js.read_text(encoding="utf-8")
-          needle = '<div class="copy" data-ar="الموقع تعريفي فقط، ولا يشكل مشورة مالية أو عرضًا للاستثمار." data-en="For information only; not financial advice or an offer to invest."></div>'
-          website = '<div class="site-address"><a href="https://am07-financial.github.io/automatic-system/" data-ar="الموقع الرسمي: am07-financial.github.io/automatic-system" data-en="Website: am07-financial.github.io/automatic-system">Website: am07-financial.github.io/automatic-system</a></div>'
-          if 'class="site-address"' not in js:
-              js = js.replace(needle, website + needle)
-          site_js.write_text(js, encoding="utf-8")
-          home = Path("site/public/index.html")
-          html = home.read_text(encoding="utf-8")
-          if "experience-band" not in html:
-              html = html.replace('</section><section class="content">', '</section><div class="experience-band"><div class="wrap"><p data-ar="فريقنا يضم مستشارين ماليين بخبرات تزيد عن 25 عامًا." data-en="Our team includes financial consultants with more than 25 years of experience."></p></div></div><section class="content">', 1)
-          home.write_text(html, encoding="utf-8")
-          branches = Path("site/public/branches.html")
-          html = branches.read_text(encoding="utf-8")
-          if "🇱🇾" not in html:
-              replacements = {
-                  'data-ar="المقر الرئيسي · ليبيا" data-en="Head office · Libya"': 'data-ar="🇱🇾 المقر الرئيسي · ليبيا" data-en="🇱🇾 Head office · Libya"',
-                  'data-ar="ليبيا" data-en="Libya"': 'data-ar="🇱🇾 ليبيا" data-en="🇱🇾 Libya"',
-                  'data-ar="الإمارات العربية المتحدة" data-en="United Arab Emirates"': 'data-ar="🇦🇪 الإمارات العربية المتحدة" data-en="🇦🇪 United Arab Emirates"',
-                  'data-ar="تركيا" data-en="Turkey"': 'data-ar="🇹🇷 تركيا" data-en="🇹🇷 Turkey"',
-                  'data-ar="فرع دولي" data-en="International branch"': 'data-ar="فرع دولي · 🇹🇷 تركيا" data-en="International branch · 🇹🇷 Turkey"',
-                  'data-ar="الولايات المتحدة الأمريكية" data-en="United States of America"': 'data-ar="🇺🇸 الولايات المتحدة الأمريكية" data-en="🇺🇸 United States of America"',
-                  'data-ar="سلطنة عُمان" data-en="Sultanate of Oman"': 'data-ar="🇴🇲 سلطنة عُمان" data-en="🇴🇲 Sultanate of Oman"',
-                  'data-ar="بلغاريا" data-en="Bulgaria"': 'data-ar="🇧🇬 بلغاريا" data-en="🇧🇬 Bulgaria"',
-              }
-              for old, new in replacements.items():
-                  html = html.replace(old, new)
-              html = html.replace('<h2 data-ar="🇧🇬 بلغاريا" data-en="🇧🇬 Bulgaria"></h2><p data-ar="فرع دولي · 🇹🇷 تركيا" data-en="International branch · 🇹🇷 Turkey">', '<h2 data-ar="🇧🇬 بلغاريا" data-en="🇧🇬 Bulgaria"></h2><p data-ar="فرع دولي · بلغاريا" data-en="International branch · Bulgaria">')
-          oman_start = html.find('<article class="card">', html.find('🇴🇲'))
-          if oman_start >= 0:
-              oman_end = html.find('</article>', oman_start)
-              oman_card = html[oman_start:oman_end]
-              oman_card = re.sub(r'data-ar="فرع دولي[^"]*" data-en="International branch[^"]*"', 'data-ar="فرع دولي · سلطنة عُمان" data-en="International branch · Oman"', oman_card, count=1)
-              html = html[:oman_start] + oman_card + html[oman_end:]
-          branches.write_text(html, encoding="utf-8")
-          contact = Path("site/public/contact.html")
-          html = contact.read_text(encoding="utf-8")
-          html = html.replace("تواصل هاتفيًا مع شركة AM", "تواصل مع شركة AM")
-          html = re.sub(r'<section class="card">.*?</section>', '<section class="card"><h2 data-ar="مقر الشركة" data-en="Company office"></h2><p data-ar="طرابلس — النوفليين، ليبيا" data-en="Tripoli — Al-Nofliyeen, Libya"></p><p class="muted" data-ar="لا تدخل معلومات مصرفية أو بيانات حساسة عبر الموقع." data-en="Do not share banking or sensitive information through the website."></p></section>', html, count=1)
-          contact.write_text(html, encoding="utf-8")
+          d=Path("site/public")
+          p=d/"site.css"
+          s=p.read_text(encoding="utf-8").replace("--cream:#f6f4ee","--cream:#fff").replace("--navy:#081e2c","--navy:#1746a2").replace("--blue:#153d52","--blue:#4169e1").replace("--gold:#d7b56d","--gold:#c9a227")
+          s += "\nhtml,body,header,nav,main,section,footer,.top,.nav,.hero,.footer,.card{background:#fff!important;background-image:none!important;color:var(--navy)!important}.links,.lang,.brand small,.hero p,.footer p,.copy{color:var(--navy)!important}.lang,.btn.secondary{border-color:var(--blue)!important}.copy{border-color:#e3e6e3!important}.site-address{font:11px Arial,sans-serif;color:var(--gold);margin-top:14px;direction:ltr}.site-address a{text-decoration:underline;text-underline-offset:3px}.hero h1,.title,.card h2,.card h3,.brand strong{color:var(--navy)!important}.eyebrow,.site-address,.links a[aria-current=page]{color:var(--gold)!important}.btn{background:var(--gold)!important;color:var(--navy)!important}.card{border-color:#e6d9b5!important}.experience-band{background:#fbf8ed;border-block:1px solid #e8ddbe;padding:17px 0}.experience-band p{margin:0;border-right:4px solid var(--gold);padding:4px 14px;color:var(--navy);font-weight:600}"
+          p.write_text(s,encoding="utf-8")
+          p=d/"site.js"; s=p.read_text(encoding="utf-8")
+          if 'class="site-address"' not in s:
+              needle='<div class="copy" data-ar="الموقع تعريفي فقط، ولا يشكل مشورة مالية أو عرضًا للاستثمار." data-en="For information only; not financial advice or an offer to invest."></div>'
+              link='<div class="site-address"><a href="https://am07-financial.github.io/automatic-system/" data-ar="الموقع الرسمي: am07-financial.github.io/automatic-system" data-en="Website: am07-financial.github.io/automatic-system">Website: am07-financial.github.io/automatic-system</a></div>'
+              s=s.replace(needle,link+needle)
+          p.write_text(s,encoding="utf-8")
+          p=d/"index.html"; s=p.read_text(encoding="utf-8")
+          s=s.replace('</section><section class="content">','</section><div class="experience-band"><div class="wrap"><p data-ar="فريقنا يضم مستشارين ماليين بخبرات تزيد عن 25 عامًا." data-en="Our team includes financial consultants with more than 25 years of experience."></p></div></div><section class="content">',1) if "experience-band" not in s else s
+          p.write_text(s,encoding="utf-8")
+          p=d/"branches.html"; s=p.read_text(encoding="utf-8")
+          if "🇱🇾" not in s:
+              pairs=[('المقر الرئيسي · ليبيا|Head office · Libya','🇱🇾 المقر الرئيسي · ليبيا|🇱🇾 Head office · Libya'),('data-ar="ليبيا" data-en="Libya"','data-ar="🇱🇾 ليبيا" data-en="🇱🇾 Libya"'),('الإمارات العربية المتحدة|United Arab Emirates','🇦🇪 الإمارات العربية المتحدة|🇦🇪 United Arab Emirates'),('data-ar="تركيا" data-en="Turkey"','data-ar="🇹🇷 تركيا" data-en="🇹🇷 Turkey"'),('فرع دولي|International branch','فرع دولي · 🇹🇷 تركيا|International branch · 🇹🇷 Turkey'),('الولايات المتحدة الأمريكية|United States of America','🇺🇸 الولايات المتحدة الأمريكية|🇺🇸 United States of America'),('سلطنة عُمان|Sultanate of Oman','🇴🇲 سلطنة عُمان|🇴🇲 Sultanate of Oman'),('data-ar="بلغاريا" data-en="Bulgaria"','data-ar="🇧🇬 بلغاريا" data-en="🇧🇬 Bulgaria"')]
+              for old,new in pairs:
+                  if '|' in old and 'data-ar=' not in old:
+                      a,b=old.split('|'); x,y=new.split('|'); s=s.replace(f'data-ar="{a}" data-en="{b}"',f'data-ar="{x}" data-en="{y}"')
+                  else:s=s.replace(old,new)
+              s=s.replace('<h2 data-ar="🇧🇬 بلغاريا" data-en="🇧🇬 Bulgaria"></h2><p data-ar="فرع دولي · 🇹🇷 تركيا" data-en="International branch · 🇹🇷 Turkey">','<h2 data-ar="🇧🇬 بلغاريا" data-en="🇧🇬 Bulgaria"></h2><p data-ar="فرع دولي · بلغاريا" data-en="International branch · Bulgaria">')
+          oman=s.find('🇴🇲'); start=s.rfind('<article class="card">',0,oman); end=s.find('</article>',oman)
+          if start>=0 and end>=0:
+              card=s[start:end]; card=re.sub(r'data-ar="فرع دولي[^"]*" data-en="International branch[^"]*"','data-ar="فرع دولي · سلطنة عُمان" data-en="International branch · Oman"',card,count=1); s=s[:start]+card+s[end:]
+          p.write_text(s,encoding="utf-8")
+          p=d/"contact.html"; s=p.read_text(encoding="utf-8")
+          s=s.replace("تواصل هاتفيًا مع شركة AM","تواصل مع شركة AM")
+          s=re.sub(r'<section class="card">.*?</section>','<section class="card"><h2 data-ar="مقر الشركة" data-en="Company office"></h2><p data-ar="طرابلس — النوفليين، ليبيا" data-en="Tripoli — Al-Nofliyeen, Libya"></p><p class="muted" data-ar="لا تدخل معلومات مصرفية أو بيانات حساسة عبر الموقع." data-en="Do not share banking or sensitive information through the website."></p></section>',s,count=1)
+          p.write_text(s,encoding="utf-8")
           PY
       - uses: actions/configure-pages@v5
         with:
