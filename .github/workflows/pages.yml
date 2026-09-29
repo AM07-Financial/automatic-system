@@ -20,6 +20,26 @@ jobs:
       - uses: actions/checkout@v4
       - name: Extract website package
         run: python3 -c "import zipfile; zipfile.ZipFile('am-company-free-static.zip').extractall('site')"
+      - name: Apply requested page updates
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          css = Path("site/public/site.css")
+          css.write_text(css.read_text(encoding="utf-8").replace("--cream:#f6f4ee", "--cream:#fff"), encoding="utf-8")
+
+          contact = Path("site/public/contact.html")
+          html = contact.read_text(encoding="utf-8")
+          html = html.replace("تواصل هاتفيًا مع شركة AM", "تواصل مع شركة AM")
+          html = re.sub(
+              r'<section class="card">.*?</section>',
+              '<section class="card"><h2 data-ar="مقر الشركة" data-en="Company office"></h2><p data-ar="طرابلس — النوفليين، ليبيا" data-en="Tripoli — Al-Nofliyeen, Libya"></p><p class="muted" data-ar="لا تدخل معلومات مصرفية أو بيانات حساسة عبر الموقع." data-en="Do not share banking or sensitive information through the website."></p></section>',
+              html,
+              count=1,
+          )
+          contact.write_text(html, encoding="utf-8")
+          PY
       - uses: actions/configure-pages@v5
         with:
           enablement: true
