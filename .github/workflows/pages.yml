@@ -25,13 +25,11 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-
           css = Path("site/public/site.css")
           css_text = css.read_text(encoding="utf-8").replace("--cream:#f6f4ee", "--cream:#fff")
           css_text = css_text.replace("--navy:#081e2c", "--navy:#1746a2").replace("--blue:#153d52", "--blue:#4169e1").replace("--gold:#d7b56d", "--gold:#c9a227")
           css_text += "\nhtml,body,header,nav,main,section,footer,.top,.nav,.hero,.footer,.card{background:#fff!important;background-image:none!important;color:var(--navy)!important}.links,.lang,.brand small,.hero p,.footer p,.copy{color:var(--navy)!important}.lang,.btn.secondary{border-color:var(--blue)!important}.copy{border-color:#e3e6e3!important}.site-address{font:11px Arial,sans-serif;color:var(--gold);margin-top:14px;direction:ltr}.site-address a{text-decoration:underline;text-underline-offset:3px}.hero h1,.title,.card h2,.card h3,.brand strong{color:var(--navy)!important}.eyebrow,.site-address,.links a[aria-current=page]{color:var(--gold)!important}.btn{background:var(--gold)!important;color:var(--navy)!important}.card{border-color:#e6d9b5!important}.experience-band{background:#fbf8ed;border-block:1px solid #e8ddbe;padding:17px 0}.experience-band p{margin:0;border-right:4px solid var(--gold);padding:4px 14px;color:var(--navy);font-weight:600}"
           css.write_text(css_text, encoding="utf-8")
-
           site_js = Path("site/public/site.js")
           js = site_js.read_text(encoding="utf-8")
           needle = '<div class="copy" data-ar="الموقع تعريفي فقط، ولا يشكل مشورة مالية أو عرضًا للاستثمار." data-en="For information only; not financial advice or an offer to invest."></div>'
@@ -39,13 +37,11 @@ jobs:
           if 'class="site-address"' not in js:
               js = js.replace(needle, website + needle)
           site_js.write_text(js, encoding="utf-8")
-
           home = Path("site/public/index.html")
           html = home.read_text(encoding="utf-8")
           if "experience-band" not in html:
               html = html.replace('</section><section class="content">', '</section><div class="experience-band"><div class="wrap"><p data-ar="فريقنا يضم مستشارين ماليين بخبرات تزيد عن 25 عامًا." data-en="Our team includes financial consultants with more than 25 years of experience."></p></div></div><section class="content">', 1)
           home.write_text(html, encoding="utf-8")
-
           branches = Path("site/public/branches.html")
           html = branches.read_text(encoding="utf-8")
           if "🇱🇾" not in html:
@@ -61,10 +57,14 @@ jobs:
               }
               for old, new in replacements.items():
                   html = html.replace(old, new)
-              html = html.replace('data-ar="فرع دولي · 🇹🇷 تركيا" data-en="International branch · 🇹🇷 Turkey"></p></article><article class="card"><h2 data-ar="🇴🇲 سلطنة عُمان"', 'data-ar="فرع دولي · سلطنة عُمان" data-en="International branch · Oman"></p></article><article class="card"><h2 data-ar="🇴🇲 سلطنة عُمان"')
               html = html.replace('<h2 data-ar="🇧🇬 بلغاريا" data-en="🇧🇬 Bulgaria"></h2><p data-ar="فرع دولي · 🇹🇷 تركيا" data-en="International branch · 🇹🇷 Turkey">', '<h2 data-ar="🇧🇬 بلغاريا" data-en="🇧🇬 Bulgaria"></h2><p data-ar="فرع دولي · بلغاريا" data-en="International branch · Bulgaria">')
+          oman_start = html.find('<article class="card">', html.find('🇴🇲'))
+          if oman_start >= 0:
+              oman_end = html.find('</article>', oman_start)
+              oman_card = html[oman_start:oman_end]
+              oman_card = oman_card.replace('فرع دولي · 🇹🇷 تركيا', 'فرع دولي · سلطنة عُمان').replace('International branch · 🇹🇷 Turkey', 'International branch · Oman')
+              html = html[:oman_start] + oman_card + html[oman_end:]
           branches.write_text(html, encoding="utf-8")
-
           contact = Path("site/public/contact.html")
           html = contact.read_text(encoding="utf-8")
           html = html.replace("تواصل هاتفيًا مع شركة AM", "تواصل مع شركة AM")
