@@ -62,7 +62,7 @@ jobs:
           if oman_start >= 0:
               oman_end = html.find('</article>', oman_start)
               oman_card = html[oman_start:oman_end]
-              oman_card = oman_card.replace('فرع دولي · 🇹🇷 تركيا', 'فرع دولي · سلطنة عُمان').replace('International branch · 🇹🇷 Turkey', 'International branch · Oman')
+              oman_card = re.sub(r'data-ar="فرع دولي[^"]*" data-en="International branch[^"]*"', 'data-ar="فرع دولي · سلطنة عُمان" data-en="International branch · Oman"', oman_card, count=1)
               html = html[:oman_start] + oman_card + html[oman_end:]
           branches.write_text(html, encoding="utf-8")
           contact = Path("site/public/contact.html")
