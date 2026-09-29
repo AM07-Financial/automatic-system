@@ -27,7 +27,9 @@ jobs:
           import re
 
           css = Path("site/public/site.css")
-          css.write_text(css.read_text(encoding="utf-8").replace("--cream:#f6f4ee", "--cream:#fff"), encoding="utf-8")
+          css_text = css.read_text(encoding="utf-8").replace("--cream:#f6f4ee", "--cream:#fff")
+          css_text += "\n.top,.nav,.hero,.footer{background:#fff!important;color:var(--navy)!important}.links,.lang,.brand small,.hero p,.footer p,.copy{color:#334b56!important}.lang{border-color:#153d52!important}.btn.secondary{border-color:#153d52!important;color:#153d52!important}.copy{border-color:#e3e6e3!important}"
+          css.write_text(css_text, encoding="utf-8")
 
           contact = Path("site/public/contact.html")
           html = contact.read_text(encoding="utf-8")
